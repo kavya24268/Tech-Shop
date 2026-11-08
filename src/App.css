@@ -447,3 +447,9 @@ a {
     font-size: 28px;
   }
 }
+
+.hero-content h1,
+.featured-section h2,
+.products-section h2 {
+  color: #ffffff;
+}
