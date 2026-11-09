@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { FiSearch, FiShoppingCart, FiUser } from 'react-icons/fi';
 import './App.css';
 import productsData from './data/productsData.js';
 import { categoryMenu } from './data/filterBarData.js';
@@ -71,10 +72,18 @@ function App() {
         </a>
 
         <div className="header-actions">
-          <button aria-label="Search">⌕</button>
-          <button aria-label="Shopping cart">🛒</button>
-          <button aria-label="Account">♙</button>
-        </div>
+  <button aria-label="Search">
+    <FiSearch />
+  </button>
+
+  <button aria-label="Shopping cart">
+    <FiShoppingCart />
+  </button>
+
+  <button aria-label="Account">
+    <FiUser />
+  </button>
+</div>
       </header>
 
       <main>
