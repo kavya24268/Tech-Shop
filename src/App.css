@@ -361,21 +361,22 @@ a {
   margin-bottom: 50px;
 }
 
-.featured-products {
+.featured-slider {
   width: 100%;
+  overflow: hidden;
+}
 
-  display: grid;
+.featured-track {
+  display: flex;
+  width: 200%;
 
-  grid-template-columns: repeat(5, 1fr);
-
-  align-items: end;
-
-  gap: 20px;
-
-  min-height: 380px;
+  transition: transform 0.8s ease-in-out;
 }
 
 .featured-item {
+  width: 10%;
+  flex: 0 0 10%;
+
   min-width: 0;
 
   text-align: center;
@@ -410,7 +411,6 @@ a {
 .featured-item .product-prices {
   margin-top: 12px;
 }
-
 /* =========================
    TOP PRODUCTS
 ========================= */

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FiSearch,
   FiShoppingCart,
@@ -98,19 +98,29 @@ function EmptyCart({ onStartShopping }) {
 }
 
 function App() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [showSearch, setShowSearch] = useState(false);
-  const [showCart, setShowCart] = useState(false);
+  const [activeCategory, setActiveCategory] =
+    useState('All');
 
-  const heroProducts = productsData.filter(
-    (product) =>
-      product.tag === 'hero-product'
-  );
+  const [showSearch, setShowSearch] =
+    useState(false);
 
-  const featuredProducts = productsData.filter(
-    (product) =>
-      product.tag === 'featured-product'
-  );
+  const [showCart, setShowCart] =
+    useState(false);
+
+  const [featuredIndex, setFeaturedIndex] =
+    useState(0);
+
+  const heroProducts =
+    productsData.filter(
+      (product) =>
+        product.tag === 'hero-product'
+    );
+
+  const featuredProducts =
+    productsData.filter(
+      (product) =>
+        product.tag === 'featured-product'
+    );
 
   const visibleProducts =
     activeCategory === 'All'
@@ -121,6 +131,29 @@ function App() {
         );
 
   const hero = heroProducts[0];
+
+  const featuredCarouselProducts = [
+    ...featuredProducts,
+    ...featuredProducts,
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFeaturedIndex((current) => {
+        if (
+          current ===
+          featuredProducts.length
+        ) {
+          return 1;
+        }
+
+        return current + 1;
+      });
+    }, 3000);
+
+    return () =>
+      clearInterval(interval);
+  }, [featuredProducts.length]);
 
   function handleSearchClick() {
     setShowSearch(!showSearch);
@@ -139,8 +172,6 @@ function App() {
   return (
     <div className="app">
 
-      {/* SEARCH OVERLAY */}
-
       {showSearch && (
         <div
           className="search-overlay"
@@ -149,8 +180,6 @@ function App() {
           }
         />
       )}
-
-      {/* HEADER */}
 
       <header className="header">
 
@@ -166,58 +195,48 @@ function App() {
 
         <div className="header-actions">
 
-          {/* SEARCH */}
-
           <button
             className="header-icon"
             aria-label="Search"
-            onClick={handleSearchClick}
+            onClick={
+              handleSearchClick
+            }
           >
-
             <FiSearch />
 
             <span className="tooltip">
               Search
             </span>
-
           </button>
-
-          {/* CART */}
 
           <button
             className="header-icon"
             aria-label="Shopping cart"
-            onClick={handleCartClick}
+            onClick={
+              handleCartClick
+            }
           >
-
             <FiShoppingCart />
 
             <span className="tooltip">
               Cart
             </span>
-
           </button>
-
-          {/* ACCOUNT */}
 
           <button
             className="header-icon"
             aria-label="Account"
           >
-
             <FiUser />
 
             <span className="tooltip">
               Account
             </span>
-
           </button>
 
         </div>
 
       </header>
-
-      {/* SEARCH POPUP */}
 
       {showSearch && (
         <div className="search-popup">
@@ -231,8 +250,6 @@ function App() {
         </div>
       )}
 
-      {/* CART */}
-
       {showCart ? (
 
         <EmptyCart
@@ -244,8 +261,6 @@ function App() {
       ) : (
 
         <main>
-
-          {/* HERO */}
 
           {hero && (
             <section className="hero">
@@ -294,17 +309,13 @@ function App() {
             </section>
           )}
 
-          {/* HERO DOTS */}
-
           <div
             className="carousel-dots"
             aria-label="Featured slides"
           >
-
             <span className="active-dot" />
             <span />
             <span />
-
           </div>
 
           {/* FEATURED PRODUCTS */}
@@ -315,57 +326,82 @@ function App() {
               Featured Products
             </h2>
 
-            <div className="featured-products">
+            <div className="featured-slider">
 
-              {featuredProducts
-                .slice(0, 5)
-                .map((product) => (
+              <div
+                className="featured-track"
+                style={{
+                  transform:
+                    `translateX(-${
+                      featuredIndex * 20
+                    }%)`,
+                }}
+              >
 
-                  <div
-                    className="featured-item"
-                    key={product.id}
-                  >
+                {featuredCarouselProducts.map(
+                  (product, index) => (
 
-                    <p>
-                      {product.title}
-                    </p>
+                    <div
+                      className="featured-item"
+                      key={`${product.id}-${index}`}
+                    >
 
-                    <img
-                      src={
-                        product.images?.[0]
-                      }
-                      alt={product.title}
-                    />
+                      <p>
+                        {product.title}
+                      </p>
 
-                    <div className="product-prices">
+                      <img
+                        src={
+                          product.images?.[0]
+                        }
+                        alt={
+                          product.title
+                        }
+                      />
 
-                      <strong>
-                        {formatPrice(
-                          product.finalPrice
-                        )}
-                      </strong>
+                      <div className="product-prices">
 
-                      <del>
-                        {formatPrice(
-                          product.originalPrice
-                        )}
-                      </del>
+                        <strong>
+                          {formatPrice(
+                            product.finalPrice
+                          )}
+                        </strong>
+
+                        <del>
+                          {formatPrice(
+                            product.originalPrice
+                          )}
+                        </del>
+
+                      </div>
 
                     </div>
 
-                  </div>
+                  )
+                )}
 
-                ))}
+              </div>
 
             </div>
 
             <div className="carousel-dots">
 
-              <span />
-              <span />
-              <span />
-              <span />
-              <span className="active-dot" />
+              {featuredProducts.map(
+                (_, index) => (
+
+                  <span
+                    key={index}
+                    className={
+                      index ===
+                      featuredIndex %
+                        featuredProducts.length
+                        ? 'active-dot'
+                        : ''
+                    }
+                  />
+
+                )
+              )}
 
             </div>
 
