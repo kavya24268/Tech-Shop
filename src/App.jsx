@@ -6,9 +6,6 @@ import {
   FiX,
 } from 'react-icons/fi';
 
-import './App.css';
-import productsData from './data/productsData.js';
-import { categoryMenu } from './data/filterBarData.js';
 
 function formatPrice(price) {
   return `₹${price.toLocaleString('en-IN')}`;
@@ -97,18 +94,187 @@ function EmptyCart({ onStartShopping }) {
   );
 }
 
+function LoginModal({ onClose, onSignup }) {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
+  return (
+    <div className="modal-overlay">
+
+      <div className="auth-modal">
+
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <h2>Login</h2>
+
+        <p className="auth-switch">
+          New to Tech-Shop?{' '}
+          <button onClick={onSignup}>
+            Create an account
+          </button>
+        </p>
+
+        <form onSubmit={handleSubmit}>
+
+          <input
+            type="email"
+            placeholder="Email"
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            required
+          />
+
+          <button
+            type="submit"
+            className="auth-submit"
+          >
+            Login
+          </button>
+
+        </form>
+
+        <div className="social-divider">
+          <span></span>
+          <p>or login with</p>
+          <span></span>
+        </div>
+
+        <div className="social-buttons">
+
+          <button className="facebook-button">
+            Facebook
+          </button>
+
+          <button className="google-button">
+            Google
+          </button>
+
+          <button className="twitter-button">
+            Twitter
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+function SignupModal({ onClose, onLogin }) {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
+  return (
+    <div className="modal-overlay">
+
+      <div className="auth-modal signup-modal">
+
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <h2>Signup</h2>
+
+        <p className="auth-switch">
+          Already have an account?{' '}
+          <button onClick={onLogin}>
+            Login
+          </button>
+        </p>
+
+        <form onSubmit={handleSubmit}>
+
+          <input
+            type="text"
+            placeholder="Username"
+            required
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            required
+          />
+
+          <button
+            type="submit"
+            className="auth-submit"
+          >
+            Signup
+          </button>
+
+        </form>
+
+        <div className="social-divider">
+          <span></span>
+          <p>or login with</p>
+          <span></span>
+        </div>
+
+        <div className="social-buttons">
+
+          <button className="facebook-button">
+            Facebook
+          </button>
+
+          <button className="google-button">
+            Google
+          </button>
+
+          <button className="twitter-button">
+            Twitter
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
 function App() {
-  const [activeCategory, setActiveCategory] =
-    useState('All');
+  const [activeCategory, setActiveCategory] = useState('All');
 
-  const [showSearch, setShowSearch] =
-    useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [heroTransition, setHeroTransition] = useState(true);
 
-  const [showCart, setShowCart] =
-    useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [authMode, setAuthMode] = useState(null);
 
-  const [featuredIndex, setFeaturedIndex] =
-    useState(0);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+
+  const [featuredIndex, setFeaturedIndex] = useState(0);
 
   const heroProducts =
     productsData.filter(
@@ -130,7 +296,45 @@ function App() {
             product.category === activeCategory
         );
 
-  const hero = heroProducts[0];
+  const heroSlides = [
+    ...heroProducts,
+    ...heroProducts,
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIndex((previous) => previous + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleHeroTransitionEnd = () => {
+    if (heroIndex >= heroProducts.length) {
+      setHeroTransition(false);
+      setHeroIndex(0);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setHeroTransition(true);
+        });
+      });
+    }
+  };
+
+  const openLogin = () => {
+    setAccountOpen(false);
+    setAuthMode('login');
+  };
+
+  const openSignup = () => {
+    setAccountOpen(false);
+    setAuthMode('signup');
+  };
+
+  const closeAuth = () => {
+    setAuthMode(null);
+  };
 
   const featuredCarouselProducts = [
     ...featuredProducts,
@@ -181,58 +385,101 @@ function App() {
         />
       )}
 
+
+      {/* =========================
+          HEADER
+      ========================= */}
+
       <header className="header">
 
-        <a
-          className="logo"
-          href="/"
-          onClick={() =>
-            setShowCart(false)
-          }
-        >
+        <a className="logo" href="/">
           Tech-Shop
         </a>
 
         <div className="header-actions">
 
-          <button
-            className="header-icon"
-            aria-label="Search"
-            onClick={
-              handleSearchClick
-            }
-          >
-            <FiSearch />
+          {/* SEARCH */}
 
-            <span className="tooltip">
-              Search
-            </span>
-          </button>
+          <div className="header-action-wrapper">
 
-          <button
-            className="header-icon"
-            aria-label="Shopping cart"
-            onClick={
-              handleCartClick
-            }
-          >
-            <FiShoppingCart />
+            <button
+              className="nav-action-button"
+              aria-label="Search"
+            >
+              <FiSearch className="nav-icon" />
 
-            <span className="tooltip">
-              Cart
-            </span>
-          </button>
+              <span className="nav-action-label">
+                Search
+              </span>
+            </button>
 
-          <button
-            className="header-icon"
-            aria-label="Account"
-          >
-            <FiUser />
+          </div>
 
-            <span className="tooltip">
-              Account
-            </span>
-          </button>
+          {/* CART */}
+
+          <div className="header-action-wrapper">
+
+            <button
+              className="nav-action-button"
+              aria-label="Shopping cart"
+            >
+              <FiShoppingCart className="nav-icon" />
+
+              <span className="nav-action-label">
+                Cart
+              </span>
+
+              <span className="cart-count">
+                0
+              </span>
+            </button>
+
+          </div>
+
+          {/* ACCOUNT */}
+
+          <div className="account-wrapper">
+
+            <button
+              className={`account-button ${
+                accountOpen ? 'account-active' : ''
+              }`}
+              aria-label="Account"
+              onClick={() =>
+                setAccountOpen((previous) => !previous)
+              }
+            >
+              <FiUser className="nav-icon" />
+            </button>
+
+            {accountOpen && (
+              <div className="account-dropdown">
+
+                <h3>
+                  Hello!
+                </h3>
+
+                <p>
+                  Access account and manage orders
+                </p>
+
+                <button
+                  className="login-button"
+                  onClick={openLogin}
+                >
+                  Login / Signup
+                </button>
+
+                <div className="dropdown-divider" />
+
+                <p className="please-login">
+                  Please Login
+                </p>
+
+              </div>
+            )}
+
+          </div>
 
         </div>
 
@@ -322,9 +569,12 @@ function App() {
 
           <section className="featured-section">
 
-            <h2>
-              Featured Products
-            </h2>
+  
+          <h2>
+              
+            Featured Products
+            
+          </h2>
 
             <div className="featured-slider">
 
@@ -420,11 +670,16 @@ function App() {
 
             <div className="category-tabs">
 
-              <button
+  
+            <button
                 className={
-                  activeCategory === 'All'
-                    ? 'active'
-                    : ''
+                  
+                activeCategory === 'All'
+                   
+                  ? 'active'
+                   
+                  : ''
+              
                 }
                 onClick={() =>
                   setActiveCategory(
@@ -438,40 +693,55 @@ function App() {
               {categoryMenu.map(
                 (category) => (
 
-                  <button
+    
+              <button
                     key={category.id}
                     className={
                       activeCategory ===
                       category.label
-                        ? 'active'
-                        : ''
+                       
+                    ? 'active'
+                       
+                    : ''
                     }
                     onClick={() =>
-                      setActiveCategory(
+                     
+                  setActiveCategory(
                         category.label
                       )
-                    }
+                    
+                }
                   >
                     {category.label}
                   </button>
 
-                )
+    
+            )
               )}
 
-            </div>
+  
+          </div>
 
             <div className="product-grid">
 
-              {visibleProducts
-                .slice(0, 11)
-                .map((product) => (
+  
+            {visibleProducts
+                
+              .slice(0, 11)
+                
+              .map((product) => (
 
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                  />
+    
+                <ProductCard
+                   
+                  key={product.id}
+                   
+                  product={product}
+                 
+                />
 
-                ))}
+    
+              ))}
 
               <a
                 className="browse-card"
